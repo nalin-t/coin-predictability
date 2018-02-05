@@ -1,0 +1,2 @@
+# coin-predictability
+Cryptocurrency predictability

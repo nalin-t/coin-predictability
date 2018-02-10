@@ -12,7 +12,8 @@ Predict future return of cryptocurrencies based on past returns using regressors
 * Predict future returns using the most optimal regressor and hyperparameters, and the performance is evaluated based on the coefficient of determination
 
 
-**Results:**
+## Results
+---
  Consistent with the efficient-market hypothesis and the modern portfolio theory, future returns cannot predicted. Rather, stock market and cryptocurrency prices evolve according to a random walk.
 
  At any given time, prices fully reflect all information available. Therefore, since 1) all market participants have access to the same information, and 2) market prices are only affected by new information, it is not possible to have an advantage and therefore predict a return.

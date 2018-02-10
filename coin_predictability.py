@@ -150,7 +150,6 @@ def getFeatures(data, prices, hours_ahead):
     return X
 
 
-
 def getLabels(data, prices, hours_ahead):
     """
     Generate a dataframe of labels
@@ -243,7 +242,7 @@ def findRegressor(X_train, y_train, X_dev, y_dev):
         r2_all = []
 
         # Fit the regressor in question on each coin
-        for column in y_dev.columns:
+        for column in y_train.columns:
             reg.fit(X_train, y_train[f'{column}'].values.ravel())
             y_predict = reg.predict(X_dev)
 
@@ -269,7 +268,7 @@ def findRegressor(X_train, y_train, X_dev, y_dev):
     return max_r2
 
 
-def predictReturns(max_r2, X_predict):
+def predictReturns(max_r2, X_train, y_train, X_predict, y_dev):
     """
     Predict the values of expected returns
 
@@ -286,7 +285,7 @@ def predictReturns(max_r2, X_predict):
         reg = GradientBoostingRegressor()
         parameters = {'loss': ['ls', 'lad', 'huber', 'quantile'],
                       'learning_rate': expon(scale=10),
-                      'n_estimators': expon(scale=100),
+                      'n_estimators': sp_randint(1, 100),
                       'max_depth': sp_randint(3, 5)}
 
     # Optimization of AdaBoostRegressor hyperparameters
@@ -294,7 +293,7 @@ def predictReturns(max_r2, X_predict):
         reg = AdaBoostRegressor()
         parameters = {'learning_rate': expon(scale=100),
                       'loss': ['linear', 'square', 'exponential'],
-                      'n_estimators': expon(scale=100)}
+                      'n_estimators': sp_randint(1, 100)}
 
     # Optimization of MLPRegressor hyperparameters in order of importance: 1) learning_rate; 2) momentum,
     # number of hidden, mini-batch size; 3) number of layers, learning rate decay
@@ -311,7 +310,7 @@ def predictReturns(max_r2, X_predict):
     r2_all = []
 
     regressor = RandomizedSearchCV(reg, param_distributions=parameters, n_iter=10, scoring='r2')
-    for column in y_dev.columns:
+    for column in y_train.columns:
         regressor.fit(X_train, y_train[f'{column}'].values.ravel())
         y_predict = regressor.predict(X_predict)
         prediction_dict[column] = y_predict
@@ -351,10 +350,12 @@ def main():
     print("Splitting train-dev data")
     max_r2 = findRegressor(X_train, y_train, X_dev, y_dev)
     print("Finding the most optimal regressor")
-    prediction_dict, r2_average = predictReturns(max_r2, X_predict)
+    prediction_dict, r2_average = predictReturns(max_r2, X_train, y_train, X_predict, y_dev)
     print("Predicting returns")
-    print(prediction_dict, r2_average)
+    print(prediction_dict)
+    print(r2_average)
 
 
 if __name__ == "__main__":
     main()
+    
